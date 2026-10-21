@@ -1,0 +1,223 @@
+/**
+ * Curated, role-agnostic question bank.
+ * Used as a safety net when the Gemini API is unavailable or rate limited, so that
+ * "Generate more questions" always works and the app never shows an empty practice list.
+ */
+
+const TECHNICAL_BANK = [
+  {
+    question: "How would you design a scalable microservices architecture to handle high throughput with low latency?",
+    intention: "Evaluates distributed-systems expertise, caching strategy, asynchronous messaging and service decoupling.",
+    answer: "Split services along business domains (DDD), put an API gateway in front, cache hot paths in Redis, use event-driven communication (Kafka / RabbitMQ) for non-blocking work and scale horizontally with autoscaling. Mention observability and failure isolation (circuit breakers, retries with back-off).",
+    difficulty: "hard",
+    category: "System Design",
+  },
+  {
+    question: "Explain your approach to database indexing and query optimisation when response times start to degrade.",
+    intention: "Assesses database internals knowledge, reading execution plans and practical performance tuning.",
+    answer: "Start with EXPLAIN / EXPLAIN ANALYZE to find full scans, add composite indexes that match WHERE and ORDER BY clauses, avoid SELECT *, paginate with keyset pagination, and consider read replicas, caching or connection pooling if the query itself is already optimal.",
+    difficulty: "medium",
+    category: "Databases",
+  },
+  {
+    question: "How do you manage state and optimise render performance in a large React application?",
+    intention: "Tests modern React patterns, component re-rendering and state decoupling.",
+    answer: "Keep state as local as possible and lift only when needed, use context for low-frequency data, memoise selectively (React.memo / useMemo / useCallback) after profiling, virtualise long lists and code-split routes with dynamic imports.",
+    difficulty: "medium",
+    category: "Frontend",
+  },
+  {
+    question: "What measures do you take to protect a web application against XSS, CSRF and SQL/NoSQL injection?",
+    intention: "Verifies secure-coding habits and defence-in-depth thinking.",
+    answer: "Validate and sanitise input, use parameterised queries / ODM schema validation, escape output, set a strict Content-Security-Policy, use HttpOnly + SameSite cookies for tokens, enforce HTTPS, and rate-limit sensitive routes.",
+    difficulty: "medium",
+    category: "Security",
+  },
+  {
+    question: "Explain the Node.js event loop. What happens when you run CPU-heavy work on the main thread?",
+    intention: "Checks understanding of asynchronous execution and common Node.js performance pitfalls.",
+    answer: "Describe the phases (timers, pending callbacks, poll, check, close), microtasks vs macrotasks and why blocking the loop stalls every request. Offer fixes: worker threads, child processes, queues, or moving the work to a separate service.",
+    difficulty: "medium",
+    category: "Backend",
+  },
+  {
+    question: "How does authentication with JWT work, and what are its trade-offs compared with server-side sessions?",
+    intention: "Evaluates practical knowledge of authentication, token storage and revocation.",
+    answer: "Explain signed, stateless tokens, short-lived access tokens + refresh tokens, and storing them in HttpOnly cookies. Trade-offs: easy horizontal scaling but hard revocation (solve with a blacklist or short expiry) versus sessions that are simple to revoke but need shared storage.",
+    difficulty: "medium",
+    category: "Security",
+  },
+  {
+    question: "What is the difference between SQL and NoSQL databases, and how do you choose between them?",
+    intention: "Tests data-modelling judgement rather than tool loyalty.",
+    answer: "Compare schema flexibility, joins and transactions, scaling model and access patterns. Choose SQL for relational data and strong consistency, NoSQL (e.g. MongoDB) for flexible documents and horizontal scale. Mention that many systems use both.",
+    difficulty: "easy",
+    category: "Databases",
+  },
+  {
+    question: "Describe how you would design a REST API for a resource-heavy feature. How do you handle versioning, pagination and errors?",
+    intention: "Looks for API design maturity and consistency.",
+    answer: "Use nouns for resources and correct HTTP verbs/status codes, version in the URL or header, cursor-based pagination for large collections, a consistent error envelope, idempotency for retries, and document the contract with OpenAPI.",
+    difficulty: "easy",
+    category: "Backend",
+  },
+  {
+    question: "Walk me through how you would set up a CI/CD pipeline for a full-stack application.",
+    intention: "Assesses DevOps awareness and delivery discipline.",
+    answer: "Lint and test on every pull request, build a Docker image, run integration tests, deploy to staging automatically and to production behind approval or a canary release, with secrets in a vault and automatic rollback on failed health checks.",
+    difficulty: "medium",
+    category: "DevOps",
+  },
+  {
+    question: "How do you design a caching strategy? When can caching hurt you?",
+    intention: "Checks understanding of invalidation, consistency and failure modes.",
+    answer: "Cover cache-aside, write-through and TTL choices, cache keys, stampede protection and invalidation on writes. Caching hurts when data must be strongly consistent, when hit-rate is low, or when stale data leaks between users.",
+    difficulty: "hard",
+    category: "System Design",
+  },
+  {
+    question: "Explain closures, hoisting and the difference between var, let and const in JavaScript.",
+    intention: "Confirms core language fundamentals.",
+    answer: "A closure keeps access to its lexical scope after the outer function returns. var is function-scoped and hoisted with undefined; let/const are block-scoped with a temporal dead zone; const prevents re-binding, not mutation. Give a short counter/factory example.",
+    difficulty: "easy",
+    category: "JavaScript",
+  },
+  {
+    question: "What is the difference between Promise.all, Promise.allSettled and Promise.race? When would you use each?",
+    intention: "Tests practical asynchronous programming skills.",
+    answer: "all rejects on the first failure and returns every result on success; allSettled waits for everything and reports each outcome; race settles with the first result. Use allSettled for independent best-effort calls and race for timeouts.",
+    difficulty: "easy",
+    category: "JavaScript",
+  },
+  {
+    question: "How would you debug a memory leak or a slow endpoint in production?",
+    intention: "Evaluates systematic debugging and observability skills.",
+    answer: "Reproduce and measure first (metrics, tracing, heap snapshots / CPU profiles), narrow the culprit with binary search, fix with a test that proves it, then add alerting so the regression is caught earlier next time.",
+    difficulty: "hard",
+    category: "Debugging",
+  },
+  {
+    question: "Explain database transactions and the ACID properties. What are isolation levels?",
+    intention: "Tests reliability concepts behind data integrity.",
+    answer: "Atomicity, Consistency, Isolation, Durability. Isolation levels (read committed, repeatable read, serializable) trade anomalies such as dirty/non-repeatable/phantom reads for concurrency. Mention optimistic vs pessimistic locking.",
+    difficulty: "medium",
+    category: "Databases",
+  },
+  {
+    question: "How do you write tests that give real confidence without slowing the team down?",
+    intention: "Assesses testing philosophy and pragmatism.",
+    answer: "Follow the testing pyramid: many fast unit tests, fewer integration tests around I/O boundaries, a handful of end-to-end tests for critical flows. Test behaviour not implementation, keep tests deterministic and run them in CI.",
+    difficulty: "medium",
+    category: "Testing",
+  },
+  {
+    question: "How would you handle file uploads and long-running tasks (such as PDF or AI processing) without blocking the API?",
+    intention: "Looks for knowledge of queues, streaming and user-experience trade-offs.",
+    answer: "Stream or use pre-signed URLs for uploads, push heavy jobs to a queue (BullMQ / SQS) processed by workers, return a job id and let the client poll or receive a websocket event. Add size/type limits and virus scanning.",
+    difficulty: "hard",
+    category: "Backend",
+  },
+  {
+    question: "What is CORS, why does it exist and how do you configure it safely?",
+    intention: "Checks browser-security fundamentals that often trip up full-stack developers.",
+    answer: "CORS lets servers declare which origins may read their responses. Whitelist specific origins, enable credentials only when needed, never combine a wildcard origin with credentials, and understand preflight OPTIONS requests.",
+    difficulty: "easy",
+    category: "Security",
+  },
+];
+
+const BEHAVIORAL_BANK = [
+  {
+    question: "Tell me about a time you had a technical disagreement with a teammate. How did you resolve it?",
+    intention: "Evaluates emotional intelligence, constructive communication and collaborative decision making.",
+    answer: "STAR — Situation: two conflicting designs. Task: reach alignment without delaying the sprint. Action: ran a small spike comparing benchmarks and trade-offs, listened to both sides. Result: team agreed on data, delivery stayed on time.",
+    difficulty: "medium",
+    category: "Teamwork",
+  },
+  {
+    question: "Describe a production incident you handled. How did you diagnose, mitigate and follow up?",
+    intention: "Assesses composure under pressure and a blameless post-mortem mindset.",
+    answer: "STAR — prioritise mitigation first (rollback / feature flag), communicate status clearly, find the root cause, then write a post-mortem with concrete preventive action items and owners.",
+    difficulty: "hard",
+    category: "Resilience",
+  },
+  {
+    question: "Tell me about a project you are most proud of. What was your specific contribution?",
+    intention: "Reveals ownership, impact and how clearly you can communicate your role.",
+    answer: "STAR — pick a project with measurable impact, be explicit about what YOU did (not 'we'), mention a challenge you overcame and quantify the result (users, latency, time saved).",
+    difficulty: "easy",
+    category: "Ownership",
+  },
+  {
+    question: "Describe a time you failed or made a serious mistake. What did you learn?",
+    intention: "Tests self-awareness, honesty and growth mindset.",
+    answer: "STAR — choose a real but recoverable failure, own it without blaming others, explain the fix and – most importantly – the process change you made so it does not happen again.",
+    difficulty: "medium",
+    category: "Growth",
+  },
+  {
+    question: "Tell me about a time you had to learn a new technology quickly to deliver a project.",
+    intention: "Measures adaptability and learning strategy.",
+    answer: "STAR — explain the deadline, how you structured learning (docs, small prototype, asking a mentor), how you applied it immediately, and the outcome. Highlight that you can repeat the approach.",
+    difficulty: "easy",
+    category: "Adaptability",
+  },
+  {
+    question: "How do you prioritise when you have multiple deadlines and not enough time?",
+    intention: "Looks for prioritisation frameworks and stakeholder communication.",
+    answer: "STAR — describe listing tasks by impact vs effort, aligning with the stakeholder on what can slip, communicating early, and delivering the highest-value item first.",
+    difficulty: "medium",
+    category: "Time Management",
+  },
+  {
+    question: "Describe a time you received critical feedback. How did you respond?",
+    intention: "Evaluates openness to feedback and ability to improve.",
+    answer: "STAR — show that you listened without defensiveness, asked clarifying questions, made a concrete change and later followed up with the person to confirm improvement.",
+    difficulty: "easy",
+    category: "Growth",
+  },
+  {
+    question: "Tell me about a time you led or mentored someone, formally or informally.",
+    intention: "Assesses leadership potential and empathy.",
+    answer: "STAR — describe the person's gap, how you adapted your support (pairing, code reviews, small stretch tasks) and the visible improvement in their work or confidence.",
+    difficulty: "medium",
+    category: "Leadership",
+  },
+  {
+    question: "Describe a time you disagreed with a manager or stakeholder's decision.",
+    intention: "Tests the ability to push back respectfully and still commit.",
+    answer: "STAR — present your data privately and respectfully, listen to their constraints, and either influence the outcome or 'disagree and commit' while still supporting delivery.",
+    difficulty: "hard",
+    category: "Communication",
+  },
+  {
+    question: "Tell me about a time you simplified a complex process or improved something no one asked you to.",
+    intention: "Looks for initiative and a bias for action.",
+    answer: "STAR — describe the pain point you noticed, the small solution you proposed or built (script, template, refactor), and the measurable time or error reduction.",
+    difficulty: "medium",
+    category: "Initiative",
+  },
+  {
+    question: "How have you handled ambiguous requirements or changing priorities mid-project?",
+    intention: "Checks comfort with uncertainty and clarification skills.",
+    answer: "STAR — show that you asked questions, wrote down assumptions, delivered in small increments to get early feedback and adapted the plan without losing sight of the goal.",
+    difficulty: "medium",
+    category: "Adaptability",
+  },
+  {
+    question: "Why do you want this role, and where do you see yourself in three years?",
+    intention: "Assesses motivation, research and alignment with the company's direction.",
+    answer: "Connect your strengths to the role's responsibilities, mention something specific about the company's product or mission, and describe growth goals (skills, impact) that this position genuinely supports.",
+    difficulty: "easy",
+    category: "Motivation",
+  },
+  {
+    question: "Tell me about a time you worked with a difficult teammate or stakeholder.",
+    intention: "Evaluates empathy, conflict resolution and professionalism.",
+    answer: "STAR — focus on understanding their perspective, setting clear expectations, keeping communication factual and the working relationship you built afterwards. Never speak negatively about the person.",
+    difficulty: "medium",
+    category: "Teamwork",
+  },
+];
+
+module.exports = { TECHNICAL_BANK, BEHAVIORAL_BANK };
