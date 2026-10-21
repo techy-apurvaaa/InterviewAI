@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # 🚀 AI Interview Strategist & Tailored Resume Platform
 
 ![React 19](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=black)
@@ -194,3 +195,7 @@ It installs dependencies on the first run, starts both servers and opens your br
 # InterviewAI
 AI-powered interview prep platform: generates tailored technical and behavioral questions, skill-gap analysis, a day-wise prep plan, and an ATS-friendly resume PDF using Google Gemini. Built with MERN.
 >>>>>>> 60ef897651259e4e0dd8d7e263ce664f0cd35ad0
+=======
+# InterviewAI
+AI-powered interview prep platform: generates tailored technical and behavioral questions, skill-gap analysis, a day-wise prep plan, and an ATS-friendly resume PDF using Google Gemini. Built with MERN.
+>>>>>>> e3ab10bc607c3b035dc45eb4f3e33a53ae0c6a89
