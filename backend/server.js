@@ -5,17 +5,16 @@ const connectToDB = require("./src/config/db");
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
-    await connectToDB();
+    try {
+        await connectToDB();
 
-    app.listen(PORT, () => {
-        console.log(`
-╔════════════════════════════════════════════════════════╗
-║  🚀 AI Interview Strategist & Resume API Started       ║
-║  🔗 Local:  http://localhost:${PORT}                      ║
-║  🩺 Health: http://localhost:${PORT}/api/health           ║
-╚════════════════════════════════════════════════════════╝
-        `);
-    });
+        app.listen(PORT, "0.0.0.0", () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error("Failed to start server:", error.message);
+        process.exit(1);
+    }
 }
 
 startServer();
